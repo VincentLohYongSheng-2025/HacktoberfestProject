@@ -157,7 +157,7 @@ docs/          PRD, development plan and workflow documentation
 
 Local sessions and records are stored in the ignored `.data/` directory. Clearing browser cookies removes access to the current founder session; it does not delete saved records. Local writes are serialised within one process, so do not share this folder between multiple running app instances.
 
-The Vercel demo uses temporary instance-local storage under `/tmp`. Accounts, pilots and reports can reset or differ between instances. It is intended for demonstrations, not durable multi-user use. A persistent database and production authentication are future work.
+Founder pilots and PDF reports on Vercel are stored in encrypted, HTTP-only browser cookies for up to seven days. Keep the same browser and allow cookies; clearing them removes access. This bounded demo storage is not a multi-user database. Partner account records still use temporary instance-local storage. A persistent database and production authentication are future work.
 
 The example scope is powdered coffee premix in 20g sachets, Malaysia to Greater Jakarta, with a 2,000-5,000-sachet pilot. Sell-through and customer satisfaction thresholds describe simulated demand results; missing cost evidence means profitability is not established. AI unavailability leaves manual intake and deterministic calculations available.
 
