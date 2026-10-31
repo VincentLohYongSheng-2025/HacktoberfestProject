@@ -1,0 +1,73 @@
+[
+  {
+    "status": "LIVE",
+    "provider": "litellm",
+    "model": "deepseek-v4.1-flash",
+    "responseId": "4ed8bfb0bad24761956f87a6b16b2ab0",
+    "latencyMs": 3743,
+    "toolTrace": [],
+    "usage": {
+      "completion_tokens": 51,
+      "prompt_tokens": 179,
+      "total_tokens": 230,
+      "audio_prompt_tokens": 0
+    }
+  },
+  {
+    "status": "LIVE",
+    "provider": "litellm",
+    "model": "deepseek-v4.1-flash",
+    "responseId": "ac3f254b8fcf4028a2b284b009e9a43f",
+    "latencyMs": 3205,
+    "toolTrace": [
+      {
+        "name": "assess_partners",
+        "recordIds": [
+          "DEMO-OEM-01",
+          "DEMO-OEM-02",
+          "DEMO-OEM-03",
+          "DEMO-OEM-04",
+          "DEMO-OEM-05",
+          "DEMO-AGY-01",
+          "DEMO-AGY-02",
+          "DEMO-AGY-03",
+          "DEMO-AGY-04"
+        ]
+      }
+    ],
+    "usage": {
+      "completion_tokens": 142,
+      "prompt_tokens": 3530,
+      "total_tokens": 3672,
+      "prompt_tokens_details": {
+        "cached_tokens": 1792
+      },
+      "audio_prompt_tokens": 0
+    }
+  },
+  {
+    "status": "LIVE",
+    "provider": "litellm",
+    "model": "deepseek-v4.1-flash",
+    "responseId": "9609e52328494642ac9eb81e679ab7ad",
+    "latencyMs": 3405,
+    "toolTrace": [
+      {
+        "name": "get_pilot_metrics",
+        "recordIds": [
+          "DEMO-OEM-01",
+          "DEMO-AGY-01"
+        ]
+      }
+    ],
+    "usage": {
+      "completion_tokens": 139,
+      "prompt_tokens": 2172,
+      "total_tokens": 2311,
+      "prompt_tokens_details": {
+        "cached_tokens": 1280
+      },
+      "audio_prompt_tokens": 0
+    }
+  }
+]
