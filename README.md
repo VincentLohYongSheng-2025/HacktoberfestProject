@@ -1,76 +1,174 @@
 # HopAsean
 
-Independent prototype for the Malaysia Ã¢â€ â€™ Greater Jakarta partner-discovery slice of Startup ASEAN Problem Statement 2. No official endorsement or systems access. Existing root licence is preserved.
+HopAsean is a web prototype that helps startup founders plan a small cross-border market pilot, compare OEM manufacturers and sales agencies, and review pilot outcomes. The current demo follows a fictional Malaysian coffee startup entering Greater Jakarta, Indonesia.
+
+**Live demo:** https://hopasean.vercel.app  
+**Repository:** https://github.com/VincentLohYongSheng-2025/HacktoberfestProject
+
+> All partner profiles, evidence and pilot results are synthetic. This prototype does not place orders, verify regulatory compliance or execute commercial agreements.
+
+## Features
+
+- **Founder workspace:** describe a product, review AI-extracted requirements, compare partners and launch a simulated pilot.
+- **OEM manufacturer portal:** register, review an assigned production scope, submit production and handover reports, and raise issues.
+- **Sales agency portal:** register, review sales scope, report receipts, sales and customer feedback, and track inventory.
+- **Pilot dashboard:** explore independent Day-90 and Day-180 snapshots with sales, stock and customer satisfaction metrics.
+- **PDF reports:** generate a grounded assessment and download a saved report for the selected snapshot.
+- **Operator tools:** review organisation registrations and partner submissions in the approval-based workflow.
+- **Demo mode:** founders enter without account verification; partners can enter isolated, prefilled pilots immediately when automatic demo access is enabled.
+
+AI supports extraction and explanations. Server-side rules calculate authoritative partner scores, budgets, stock movements and target verdicts.
+
+## Technology
+
+Next.js App Router, React, TypeScript, Zod, Lucide icons and pdf-lib. Tests use Node's test runner through tsx and Playwright.
+
+## Prerequisites
+
+- Node.js **24.x** (the development and deployment version).
+- npm, included with Node.js.
+- Git to clone the repository.
+- Google Chrome for the configured browser tests.
+
+## Installation
+
+```bash
+git clone https://github.com/VincentLohYongSheng-2025/HacktoberfestProject.git
+cd HacktoberfestProject
+npm ci
+```
+
+Create your local environment file:
+
+**Windows PowerShell**
+
+```powershell
+Copy-Item .env.example .env.local
+```
+
+**macOS / Linux**
+
+```bash
+cp .env.example .env.local
+```
+
+If PowerShell blocks `npm.ps1`, use `npm.cmd` instead of `npm` in the commands below.
+
+## Environment setup
+
+Edit `.env.local` before starting the app. For immediate access while recording a demo, set:
+
+```dotenv
+DEMO_MODE=true
+DEMO_AUTO_APPROVE=true
+```
+
+| Variable | Purpose |
+| --- | --- |
+| `DEMO_MODE` | Enables isolated synthetic demo use. Required for the hosted production demo. |
+| `DEMO_AUTO_APPROVE` | With demo mode enabled, opens a prefilled partner pilot after registration or login. The underlying organisation review is unchanged. Set `false` to demonstrate the approval workflow. |
+| `AI_PROVIDER` | Provider label; the example uses `litellm`. |
+| `AI_BASE_URL` | OpenAI-compatible API base URL; the example uses `https://litellm.rapidscreen.io/v1`. |
+| `AI_MODEL` | Model identifier; the example uses `deepseek-v4.1-flash`. |
+| `AI_API_KEY` | Your provider key, configured privately. Leave empty to use the manual/deterministic fallback. |
+| `AI_TIMEOUT_MS` | AI request timeout setting; the example uses `20000`. |
+| `AI_SESSION_LIMIT` | Per-workspace AI quota; the example uses `30`. |
+| `OPERATOR_ACCESS_CODE` | Private code for operator tools. Required to unlock them in a production demo. |
+| `SESSION_SECRET` | Shared server-side session signing secret for hosted deployments. Local development generates an ignored signing key automatically. |
+
+Never commit `.env.local`, API keys or signing secrets. Supabase variables in the example are placeholders: the proposed schema is included, but cloud authentication and database integration are not active.
 
 ## Run locally
 
-Requires Node.js 22+ (developed with 24) and npm.
-
-```powershell
-npm.cmd ci
-Copy-Item .env.example .env.local
-# Configure AI_API_KEY privately; never commit it.
-npm.cmd run dev
+```bash
+npm run dev
 ```
 
-Open http://127.0.0.1:3000. Click **Start a market pilot**, load Kopi Harimau, confirm the brief, choose an OEM and agency, acknowledge scope and launch. In development only, the default operator code is `pilotbridge-local`; set `OPERATOR_ACCESS_CODE` in `.env.local` to override. Production demo requires an explicit code and `DEMO_MODE=true`.
+Open **http://127.0.0.1:3000**. Keep the terminal running; press `Ctrl+C` to stop the server.
 
-The app binds to loopback. This is an isolated synthetic demo, not production authentication. Signed HTTP-only session cookies isolate each browser workspace. Local records and signing key are persisted under ignored `.data/`. Clearing cookies creates a new workspace; old records are not deleted. Local writes are serialised and replaced atomically in one process. Do not run multiple instances against one folder, or deploy this disk adapter to serverless hosting. Supabase Auth/database wiring is deferred per user choice; `supabase/schema.sql` is a proposed RLS schema, not an applied migration.
+### Run a production build locally
 
-## What works / what is simulated
+Stop the development server first if it is using port 3000.
 
-| Feature | Implementation | Boundary |
-|---|---|---|
-| Brief | Validated manual intake, example loader, founder confirmation | Only powdered coffee premix / 20g sachets / USD / MYÃ¢â€ â€™Jakarta |
-| AI | Server-only configurable DeepSeek extraction and bounded assessment/report tools, cache, quota, timeout | LIVE only on actual API success; CACHED and DEGRADED explicit; supplied key/provider must pass live check |
-| Matching | Exact server formulas, separate gates, feasible pair check | Nine fictional companies; all DEMO evidence synthetic |
-| Launch | Server recomputation, idempotent saved pilot, frozen targets | No actual production order or commercial execution |
-| Progress | Separate Day-90/Day-180 event histories, source ledger, approved deltas, stock checks | No real 180-day elapsed trial; milestones in seed are illustrative |
-| Reports | Deterministic demand/CSAT verdict, AI factor interpretation | No profitability claim; attributable cost data incomplete |
-| Operator | Separate server-validated code and signed role cookie | Local demo access, not production operator identity |
-| Supabase | Proposed owner RLS schema | Cloud integration not active; no project created |
-
-## Rules & accounting
-
-`oem_pdf_v1`: Q=.30recipe+.25seal+.25sla+.20conv; R=v/(v+5)Q+5/(v+5)*.78; M=max(0,1-abs(MOQ-target)/target); T=1/.5/.1; L=max(0,1-distance/150); S=.35R+.30M+.20T+.15L. v=0 uses prior .78 without invented quality. The source MOQ formula penalises low MOQ too; retained intentionally. Ranks use full precision, then stable ID. Suitability is not success probability.
-
-`agency_proposed_v1`: .30 channels + .25 category experience + .20 capacity + .15 commercial fit + .10 geography. Proposed rubric, not validated market science. `pilot_feasibility_v1` separately enforces gates, quantities, packaging, deadlines, quotes, role, channels, handover and combined USD budget. Six OEM gates represent prototype policy, not Indonesian legal advice. All unknown/expired/conflicting evidence requires review; FAIL takes priority.
-
-One unit = one 20g sachet; 20 per carton. Example target 3,000. Snapshots contain independent histories: Day90 = 2,100 net sold, 40 ratings at 4.5; Day180 = 2,730, 60 at 4.6. No seeded returns/damage. Sell-through is within the first 90 selling days from recorded Day46. Full observation at Day180 and Ã¢â€°Â¥20 ratings are required. Thresholds Ã¢â€°Â¥80% and Ã¢â€°Â¥4.2 are inclusive. Missing cost data leaves contribution unavailable. Demo dates are fixed and visible; new operator events explicitly acknowledge backdating. Seed milestones are not operational approvals.
-
-## AI configuration
-
-Default official endpoint https://api.deepseek.com, model alias `deepseek-flash` (DeepSeek V4.1 Flash in supplied specification). Set `AI_BASE_URL`, `AI_MODEL`, `AI_PROVIDER` explicitly for another provider. Never silently switches providers. Chat completion tools follow official docs; non-thinking mode. At most 4 model requests, 8 tool executions, 20 seconds overall, 1,200 output tokens, bounded input and default 30 model requests/session. Provider spending controls must enforce your monetary budget; app quota is not a USD5 spending guarantee. Generated explanations use only validated factor enums, partner IDs and evidence IDs; backend numbers cannot be replaced by model text. Cache keys include complete inputs, evidence/rules/model/prompt version. No hidden reasoning stored. No key sent to client. DeepSeek failure preserves deterministic workflow. No automatic retry loop beyond bounded tool rounds.
-
-## Validation
-
-```powershell
-npm.cmd test
-npm.cmd run typecheck
-npm.cmd run build
-# With dev server running:
-npm.cmd run test:e2e
+```bash
+npm run build
+npm start
 ```
 
-See `docs/test_results.md` for observed results and remaining gates. Browser tests require Playwright Chromium (`npx.cmd playwright install chromium`).
+Open **http://127.0.0.1:3000** again. Keep `DEMO_MODE=true` for the production demo.
 
-## Architecture
+## Try the demo
 
-Next.js App Router + TypeScript + React + Zod. UI calls `/api` routes, which authorise signed sessions, validate schemas, run `lib/rules.ts`, optionally invoke `lib/ai.ts`, and persist through `lib/store.ts`. The browser never computes authoritative rankings or KPI verdicts. Source PRD and development plan are in `docs/`. Future work: Supabase adapter/auth and full table model, production operator assignment, real registry/document evidence, commercial validation, deployment and demo video. No external publication or submission is performed by setup.
+### Startup founder
 
-Sources: supplied PRD/development plan (their PDF source documents were not independently reviewed in this build); [DeepSeek tools](https://api-docs.deepseek.com/guides/tool_calls/), [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [Next.js installation](https://nextjs.org/docs/app/getting-started/installation). PS2 / Category B are the supplied submission framing, not a guarantee of event eligibility.
+1. Open the homepage and select **Start a market pilot**.
+2. Load the **Kopi Harimau example**, or enter non-confidential product requirements and select **Analyse requirements**.
+3. Review the fields, confirm them and find partners.
+4. Select both an OEM manufacturer and a sales agency, acknowledge the pilot scope and launch.
+5. Explore Day-90 and Day-180 progress, then generate an assessment to download the PDF report.
 
-## OEM and sales agency portals
+Founder demo entry does not require account registration or email verification. Switching from a partner session to the founder workspace starts a separate founder demo session.
 
-OEMs and sales agencies register and sign in with independent accounts. Operator-reviewed organisation assignment controls pilot access. Founder-generated partner invitations have been removed. See `docs/partner_accounts.md` for the current flow.
+### OEM manufacturer and sales agency
 
-## PDF outcome reports
+Visit `/partner` to choose a role, or use these routes directly:
 
-Generate grounded assessment now also downloads a PDF of the selected snapshot. Download PDF again retrieves the saved report without another model call. See `docs/pdf_reports.md` for content, ownership and evidence rules.
+| Role | Register | Sign in | Dashboard |
+| --- | --- | --- | --- |
+| OEM manufacturer | `/oem/register` | `/oem/login` | `/oem/dashboard` |
+| Sales agency | `/sales/register` | `/sales/login` | `/sales/dashboard` |
 
-## Independent OEM and sales accounts
+Use synthetic organisation details and a password of at least 12 characters. With `DEMO_AUTO_APPROVE=true`, each account receives an isolated, prefilled 3,000-sachet pilot. These are separate demo workspaces; they are not automatically linked to a founder's newly created pilot.
 
-The invitation-based partner prototype is superseded by independent registration and sign-in. OEM: `/oem/register`, `/oem/login`, `/oem/dashboard`. Sales agency: `/sales/register`, `/sales/login`, `/sales/dashboard`. Operators review registrations at `/operator/partners`. Founder sessions cannot open partner dashboards or generate impersonation links. See `docs/partner_accounts.md`.
+With automatic demo access disabled, new accounts await operator organisation review and assignment. Email verification and password recovery are not implemented.
 
-## Hosted demo
-Vercel demo mode uses temporary instance-local storage. Accounts and pilot history can reset or differ across instances; use synthetic details. Durable multi-user storage is not configured. SESSION_SECRET must be set privately on Vercel.
+### Operator workflow
+
+Organisation review is available at `/operator/partners`. Pilot operator tools are available from the founder pilot workflow. In development, the default operator code is `pilotbridge-local`; set `OPERATOR_ACCESS_CODE` to override it. Production has no default operator code. Partner submissions in the approval workflow affect approved KPIs only after review.
+
+## Tests and checks
+
+```bash
+npm run typecheck
+npm test
+npm run build
+```
+
+For browser tests, run the development server in a separate terminal, ensure Google Chrome is installed, then run:
+
+```bash
+npm run test:e2e
+```
+
+Playwright currently uses the installed `chrome` channel. Partner tests depend on the selected demo configuration: use `DEMO_AUTO_APPROVE=true` for `partner-demo.spec.ts` and `false` for the approval workflow test. Some browser flows call the configured AI provider and may consume API quota.
+
+## Project structure
+
+```text
+app/           Pages, shared styles and API routes
+components/    Founder, partner and operator interfaces
+lib/           Validation, matching rules, AI, reports and storage
+supabase/      Proposed database schema (not applied)
+tests/         Rules, storage, AI, report and browser tests
+docs/          PRD, development plan and workflow documentation
+```
+
+## Data and deployment limitations
+
+Local sessions and records are stored in the ignored `.data/` directory. Clearing browser cookies removes access to the current founder session; it does not delete saved records. Local writes are serialised within one process, so do not share this folder between multiple running app instances.
+
+The Vercel demo uses temporary instance-local storage under `/tmp`. Accounts, pilots and reports can reset or differ between instances. It is intended for demonstrations, not durable multi-user use. A persistent database and production authentication are future work.
+
+The example scope is powdered coffee premix in 20g sachets, Malaysia to Greater Jakarta, with a 2,000-5,000-sachet pilot. Sell-through and customer satisfaction thresholds describe simulated demand results; missing cost evidence means profitability is not established. AI unavailability leaves manual intake and deterministic calculations available.
+
+## Further documentation
+
+- [Product requirements](docs/prd.md)
+- [Development plan](docs/development_plan.md)
+- [Partner accounts and demo access](docs/partner_accounts.md)
+- [PDF reports](docs/pdf_reports.md)
+- [Recorded validation notes](docs/test_results.md)
+
+## License
+
+See [LICENSE](LICENSE) for the repository license.
